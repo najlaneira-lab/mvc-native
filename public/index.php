@@ -1,16 +1,16 @@
 <?php
 require '../config/database.php';
-require '../app/models/Mahasiswa.php';
-require '../app/controllers/MahasiswaController.php';
+require '../app/models/Buku.php';
+require '../app/controllers/BukuController.php';
 
 $db = (new Database())->connect();
-$model = new Mahasiswa($db);
-$controller = new MahasiswaController($model);
+$model = new Buku($db);
+$controller = new BukuController($model);
 
-$page = $_GET['page'] ?? 'mahasiswa';
+$page = $_GET['page'] ?? 'buku';
 $action = $_GET['action'] ?? 'index';
 
-if ($page !== 'mahasiswa') {
+if ($page !== 'buku') {
     http_response_code(404);
     exit('Halaman tidak ditemukan.');
 }
