@@ -6,6 +6,7 @@
 </head>
 <body>
     <h2>Tambah Buku</h2>
+    <?php require __DIR__ . '/../partials/flash.php'; ?>
     <form method="post" action="index.php?page=buku&action=store">
         <label>ISBN</label><br>
         <input type="text" name="isbn" required><br><br>

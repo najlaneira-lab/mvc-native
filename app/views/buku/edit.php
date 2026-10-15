@@ -6,6 +6,7 @@
 </head>
 <body>
     <h2>Edit Buku</h2>
+    <?php require __DIR__ . '/../partials/flash.php'; ?>
     <form method="post" action="index.php?page=buku&action=update">
         <input type="hidden" name="id" value="<?= $buku['id'] ?>">
 

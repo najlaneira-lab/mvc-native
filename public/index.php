@@ -1,4 +1,5 @@
 <?php
+session_start();
 require '../config/database.php';
 require '../app/models/Buku.php';
 require '../app/controllers/BukuController.php';

@@ -16,10 +16,21 @@ class BukuController
 
     public function store(): void
     {
-        $data = $this->validateInput($_POST);
-        $this->model->insert($data);
-        header('Location: index.php?page=buku');
-        exit;
+        [$data, $error] = $this->validateInput($_POST);
+        if ($error) {
+            $this->flash('error', $error);
+            $this->redirect('index.php?page=buku&action=create');
+        }
+
+        try {
+            $this->model->insert($data);
+            $this->flash('success', 'Data buku berhasil ditambahkan.');
+        } catch (PDOException $e) {
+            $this->flash('error', $this->pesanDatabase($e, 'menambahkan'));
+            $this->redirect('index.php?page=buku&action=create');
+        }
+
+        $this->redirect('index.php?page=buku');
     }
 
     public function edit(): void
@@ -38,18 +49,56 @@ class BukuController
     public function update(): void
     {
         $id = (int) ($_POST['id'] ?? 0);
-        $data = $this->validateInput($_POST);
-        $this->model->update($id, $data);
-        header('Location: index.php?page=buku');
-        exit;
+
+        [$data, $error] = $this->validateInput($_POST);
+        if ($error) {
+            $this->flash('error', $error);
+            $this->redirect('index.php?page=buku&action=edit&id=' . $id);
+        }
+
+        try {
+            $this->model->update($id, $data);
+            $this->flash('success', 'Data buku berhasil diperbarui.');
+        } catch (PDOException $e) {
+            $this->flash('error', $this->pesanDatabase($e, 'memperbarui'));
+            $this->redirect('index.php?page=buku&action=edit&id=' . $id);
+        }
+
+        $this->redirect('index.php?page=buku');
     }
 
     public function delete(): void
     {
         $id = (int) ($_POST['id'] ?? 0);
-        $this->model->delete($id);
-        header('Location: index.php?page=buku');
+
+        try {
+            $this->model->delete($id);
+            $this->flash('success', 'Data buku berhasil dihapus.');
+        } catch (PDOException $e) {
+            $this->flash('error', $this->pesanDatabase($e, 'menghapus'));
+        }
+
+        $this->redirect('index.php?page=buku');
+    }
+
+    private function flash(string $type, string $message): void
+    {
+        $_SESSION['flash'] = ['type' => $type, 'message' => $message];
+    }
+
+    private function redirect(string $url): never
+    {
+        header('Location: ' . $url);
         exit;
+    }
+
+    private function pesanDatabase(PDOException $e, string $aksi): string
+    {
+        // Kode 1062 = duplicate entry (ISBN kembar)
+        if (($e->errorInfo[1] ?? 0) === 1062) {
+            return 'Gagal ' . $aksi . ' data: ISBN sudah terdaftar.';
+        }
+        return 'Gagal ' . $aksi . ' data karena terjadi kesalahan pada database.';
     }
 
     private function validateInput(array $input): array
@@ -65,24 +114,24 @@ class BukuController
 
         foreach ($data as $nilai) {
             if ($nilai === '') {
-                exit('Semua field wajib diisi.');
+                return [null, 'Semua field wajib diisi.'];
             }
         }
 
         if (!ctype_digit($data['tahun_terbit'])
             || (int) $data['tahun_terbit'] < 1900
             || (int) $data['tahun_terbit'] > (int) date('Y')) {
-            exit('Tahun terbit harus berupa angka antara 1900 dan tahun sekarang.');
+            return [null, 'Tahun terbit harus berupa angka antara 1900 dan tahun sekarang.'];
         }
 
         if (!ctype_digit($data['harga'])) {
-            exit('Harga harus berupa angka bulat positif.');
+            return [null, 'Harga harus berupa angka bulat positif.'];
         }
 
         $data['tahun_terbit'] = (int) $data['tahun_terbit'];
         $data['harga']        = (int) $data['harga'];
 
-        return $data;
+        return [$data, null];
     }
 }
 ?>

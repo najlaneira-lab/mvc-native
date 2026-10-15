@@ -6,6 +6,7 @@
 </head>
 <body>
     <h2>Daftar Buku</h2>
+    <?php require __DIR__ . '/../partials/flash.php'; ?>
     <a href="index.php?page=buku&action=create">Tambah Data</a>
 
     <table border="1" cellpadding="8" cellspacing="0">
