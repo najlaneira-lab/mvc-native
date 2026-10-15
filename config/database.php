@@ -2,7 +2,7 @@
 class Database
 {
     private string $host = 'localhost';
-    private string $db   = 'kampus';
+    private string $db   = 'perpustakaan';
     private string $user = 'root';
     private string $pass = '';
 
